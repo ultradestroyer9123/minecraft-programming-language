@@ -1,0 +1,7 @@
+.MODULE=true
+.OUTPUT=file
+currentPlayer = "@a"
+
+' initialize
+  
+  

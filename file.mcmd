@@ -1,0 +1,1084 @@
+origin -258, -63, 81
+.BUILDBUTTON=G
+.OUTPUT=both
+currentPlayer @a
+
+@GRID_SIZE_X = 20
+@GRID_SIZE_Z = 20
+
+@ORIGIN_X_PLUS_GRID_SIZE_X = {origin_x}
+@ORIGIN_X_PLUS_GRID_SIZE_X += {@GRID_SIZE_X}
+@ORIGIN_Z_PLUS_GRID_SIZE_Z = {origin_z}
+@ORIGIN_Z_PLUS_GRID_SIZE_Z += {@GRID_SIZE_Z}
+
+@GRID_CENTER_X = {origin_x}
+@GRID_CENTER_X += {@GRID_SIZE_X/2}
+@GRID_CENTER_Z = {origin_z}
+@GRID_CENTER_Z += {@GRID_SIZE_Z/2}
+
+function initialize
+  armorstand remove snake
+  armorstand create snake {@GRID_CENTER_X} {origin_y+5} {@GRID_CENTER_Z} NoGravity:1b
+  set snake.length to 1
+  set snake.direction to 0
+  set snake.running to 1
+  set snake.can_rotate to 1
+
+  ' 0 = north, 1 = east, 2 = south, 3 = west
+  cmd chain, unconditional, always, fill {origin_x} {origin_y+5} {origin_z} {@ORIGIN_X_PLUS_GRID_SIZE_X} {origin_y+5} {@ORIGIN_Z_PLUS_GRID_SIZE_Z} minecraft:white_concrete
+  cmd chain, unconditional, always, fill {origin_x+1} {origin_y+5} {origin_z+1} {@ORIGIN_X_PLUS_GRID_SIZE_X-1} {origin_y+5} {@ORIGIN_Z_PLUS_GRID_SIZE_Z-1} minecraft:black_concrete
+
+function checkSnakeState
+  cmd impulse, unconditional, need, execute at @e[type=minecraft:armor_stand,tag=snake,limit=1] unless block ~ ~ ~ minecraft:black_concrete unless block ~ ~ ~ minecraft:red_concrete run scoreboard players set {variablesFor} snake.running 0
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=snake,limit=1] if block ~ ~ ~ minecraft:red_concrete run scoreboard players add {variablesFor} snake.length 1
+  cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=snake,limit=1] if block ~ ~ ~ minecraft:red_concrete run setblock ~ ~ ~ minecraft:lime_concrete
+
+function moveSnake
+  if score {variablesFor} snake.direction matches 0 then
+    [CONDITIONAL]
+    armorstand move snake ~ ~ ~-1
+  if score {variablesFor} snake.direction matches 1 then
+    [CONDITIONAL]
+    armorstand move snake ~1 ~ ~
+  if score {variablesFor} snake.direction matches 2 then
+    [CONDITIONAL]
+    armorstand move snake ~ ~ ~1
+  if score {variablesFor} snake.direction matches 3 then
+    [CONDITIONAL]
+    armorstand move snake ~-1 ~ ~
+  set snake.can_rotate to 1
+  checkSnakeState()
+
+
+function turnSnakeLeft
+  
+  set snake.direction subtract 1
+  if score {variablesFor} snake.direction matches -1 then
+    [CONDITIONAL]
+    set snake.direction to 3
+  set snake.can_rotate to 0
+
+function turnSnakeRight
+  set snake.direction add 1
+  if score {variablesFor} snake.direction matches 4 then
+    [CONDITIONAL]
+    set snake.direction to 0
+  set snake.can_rotate to 0
+
+isHolding nether_star playerTurnLeft execute if score {variablesFor} snake.can_rotate matches 1 run say Turning Left
+  [CONDITIONAL]
+  if score {variablesFor} snake.can_rotate matches 1 then
+    [CONDITIONAL]
+    turnSnakeLeft()
+
+isHolding firework_star playerTurnRight execute if score {variablesFor} snake.can_rotate matches 1 run say Turning Right
+  [CONDITIONAL]
+  if score {variablesFor} snake.can_rotate matches 1 then
+    [CONDITIONAL]
+    turnSnakeRight()
+
+function gameLoop
+  moveSnake()
+  timer 7 ticks
+  if score {variablesFor} snake.running matches 1 then
+    [CONDITIONAL]
+    gameLoop()
+
+
+exit
+
+origin -106, -63, -64
+.BUILDBUTTON=G
+currentPlayer TwetyDev
+
+@SCREEN_ORIGIN_X = -64
+@SCREEN_ORIGIN_Y = {origin_y+10}
+@SCREEN_ORIGIN_Z = -64
+
+function initialize
+  armorstand remove bitReader
+  armorstand remove point1
+  armorstand remove point2
+  armorstand remove pen
+
+  set GRID_SIZE to 127
+
+  set bit.running to 0
+
+  set bit.pointer.position to 0
+  set bit.pointer.max to 127
+  set bit.string.type to 0
+  set bit.string.color to 0
+
+  set bit.string.position1.x to 0
+  set bit.string.position1.z to 0
+
+  set bit.string.position2.x to 0
+  set bit.string.position2.z to 0
+
+  set bit.point1.x to 0
+  set bit.point1.z to 0
+
+  set bit.point2.x to 0
+  set bit.point2.z to 0
+
+  set bit.pen.x to 0
+  set bit.pen.z to 0
+
+  armorstand create bitReader {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y-10} {@SCREEN_ORIGIN_Z} NoGravity:1b
+  armorstand create point1 {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} NoGravity:1b
+  armorstand create point2 {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} NoGravity:1b
+  armorstand create pen {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} NoGravity:1b
+
+chunk createScreen
+  cmd impulse, unconditional, need, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:black_concrete
+endchunk
+
+function resetBitPointer
+  set bit.pointer.position to 0
+  armorstand move bitReader {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y-10} {@SCREEN_ORIGIN_Z}
+
+function shiftBitPointer
+  armorstand move bitReader ~ ~ ~1
+  score {variablesFor} bit.pointer.position add 1
+
+chunk readBitType
+  set bit.string.type to 0
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~ ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.type 2
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~1 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.type 1
+endchunk
+
+chunk readBitColor
+  set bit.string.color to 0
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~2 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.color 4
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~3 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.color 2
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~4 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.color 1
+endchunk
+
+chunk resetPoint1Position
+  armorstand move point1 {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z}
+  set bit.string.position1.x to 0
+  set bit.string.position1.z to 0
+endchunk
+
+chunk resetPoint2Position
+  armorstand move point2 {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z}
+  set bit.string.position2.x to 0
+  set bit.string.position2.z to 0
+endchunk
+
+function subtractPosition1X
+  cmd repeating, unconditional, need, execute unless score {variablesFor} bit.point1.x = {variablesFor} bit.string.position1.x run execute at @e[type=minecraft:armor_stand,tag=point1] run scoreboard players remove {variablesFor} bit.point1.x 1
+  [CONDITIONAL]
+  armorstand move point1 ~-1 ~ ~
+  if score {variablesFor} bit.point1.x = {variablesFor} bit.string.position1.x then
+    [CONDITIONAL]
+    stop subtractPosition1X()
+
+function subtractPosition1Z
+  cmd repeating, unconditional, need, execute unless score {variablesFor} bit.point1.z = {variablesFor} bit.string.position1.z run execute at @e[type=minecraft:armor_stand,tag=point1] run scoreboard players remove {variablesFor} bit.point1.z 1
+  [CONDITIONAL]
+  armorstand move point1 ~ ~ ~-1
+  if score {variablesFor} bit.point1.z = {variablesFor} bit.string.position1.z then
+    [CONDITIONAL]
+    stop subtractPosition1Z()
+
+function addPosition1X
+  cmd repeating, unconditional, need, execute unless score {variablesFor} bit.point1.x = {variablesFor} bit.string.position1.x run execute at @e[type=minecraft:armor_stand,tag=point1] run scoreboard players add {variablesFor} bit.point1.x 1
+  [CONDITIONAL]
+  armorstand move point1 ~1 ~ ~
+  if score {variablesFor} bit.point1.x = {variablesFor} bit.string.position1.x then
+    [CONDITIONAL]
+    stop addPosition1X()
+
+function addPosition1Z
+  cmd repeating, unconditional, need, execute unless score {variablesFor} bit.point1.z = {variablesFor} bit.string.position1.z run execute at @e[type=minecraft:armor_stand,tag=point1] run scoreboard players add {variablesFor} bit.point1.z 1
+  [CONDITIONAL]
+  armorstand move point1 ~ ~ ~1
+  if score {variablesFor} bit.point1.z = {variablesFor} bit.string.position1.z then
+    [CONDITIONAL]
+    stop addPosition1Z()
+
+function subtractPosition2X
+  cmd repeating, unconditional, need, execute unless score {variablesFor} bit.point2.x = {variablesFor} bit.string.position2.x run execute at @e[type=minecraft:armor_stand,tag=point2] run scoreboard players remove {variablesFor} bit.point2.x 1
+  [CONDITIONAL]
+  armorstand move point2 ~-1 ~ ~
+  if score {variablesFor} bit.point2.x = {variablesFor} bit.string.position2.x then
+    [CONDITIONAL]
+    stop subtractPosition2X()
+
+function subtractPosition2Z
+  cmd repeating, unconditional, need, execute unless score {variablesFor} bit.point2.z = {variablesFor} bit.string.position2.z run execute at @e[type=minecraft:armor_stand,tag=point2] run scoreboard players remove {variablesFor} bit.point2.z 1
+  [CONDITIONAL]
+  armorstand move point2 ~ ~ ~-1
+  if score {variablesFor} bit.point2.z = {variablesFor} bit.string.position2.z then
+    [CONDITIONAL]
+    stop subtractPosition2Z()
+
+function addPosition2X
+  cmd repeating, unconditional, need, execute unless score {variablesFor} bit.point2.x = {variablesFor} bit.string.position2.x run execute at @e[type=minecraft:armor_stand,tag=point2] run scoreboard players add {variablesFor} bit.point2.x 1
+  [CONDITIONAL]
+  armorstand move point2 ~1 ~ ~
+  if score {variablesFor} bit.point2.x = {variablesFor} bit.string.position2.x then
+    [CONDITIONAL]
+    stop addPosition2X()
+
+function addPosition2Z
+  cmd repeating, unconditional, need, execute unless score {variablesFor} bit.point2.z = {variablesFor} bit.string.position2.z run execute at @e[type=minecraft:armor_stand,tag=point2] run scoreboard players add {variablesFor} bit.point2.z 1
+  [CONDITIONAL]
+  armorstand move point2 ~ ~ ~1
+  if score {variablesFor} bit.point2.z = {variablesFor} bit.string.position2.z then
+    [CONDITIONAL]
+    stop addPosition2Z()
+
+chunk setPositionOne
+  if score {variablesFor} bit.point1.x < {variablesFor} bit.string.position1.x then
+    [CONDITIONAL]
+    addPosition1X()
+  if score {variablesFor} bit.point1.x > {variablesFor} bit.string.position1.x then
+    [CONDITIONAL]
+    subtractPosition1X()
+  if score {variablesFor} bit.point1.z < {variablesFor} bit.string.position1.z then
+    [CONDITIONAL]
+    addPosition1Z()
+  if score {variablesFor} bit.point1.z > {variablesFor} bit.string.position1.z then
+    [CONDITIONAL]
+    subtractPosition1Z()
+endchunk
+
+chunk setPositionTwo
+  if score {variablesFor} bit.point2.x < {variablesFor} bit.string.position2.x then
+    [CONDITIONAL]
+    addPosition2X()
+  if score {variablesFor} bit.point2.x > {variablesFor} bit.string.position2.x then
+    [CONDITIONAL]
+    subtractPosition2X()
+  if score {variablesFor} bit.point2.z < {variablesFor} bit.string.position2.z then
+    [CONDITIONAL]
+    addPosition2Z()
+  if score {variablesFor} bit.point2.z > {variablesFor} bit.string.position2.z then
+    [CONDITIONAL]
+    subtractPosition2Z()
+endchunk
+
+function approachPoint2
+  cmd repeating, unconditional, need, execute as @e[type=minecraft:armor_stand,tag=pen,limit=1] at @e[type=minecraft:armor_stand,tag=pen,limit=1] if entity @e[type=minecraft:armor_stand,tag=point2,limit=1,distance=.75..] run tp ^ ^ ^0.5
+  cmd chain, unconditional, always, execute as @e[type=minecraft:armor_stand,tag=pen,limit=1] at @e[type=minecraft:armor_stand,tag=pen,limit=1] if entity @e[type=minecraft:armor_stand,tag=point2,limit=1,distance=..0.75]
+  [CONDITIONAL]
+  stop approachPoint2
+  [CONDITIONAL]
+  set bit.string.running to 0
+  if score {variablesFor} bit.string.color matches 0 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=pen,limit=1] run setblock ~ ~ ~ minecraft:black_concrete
+  if score {variablesFor} bit.string.color matches 1 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=pen,limit=1] run setblock ~ ~ ~ minecraft:blue_concrete
+  if score {variablesFor} bit.string.color matches 2 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=pen,limit=1] run setblock ~ ~ ~ minecraft:lime_concrete
+  if score {variablesFor} bit.string.color matches 3 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=pen,limit=1] run setblock ~ ~ ~ minecraft:cyan_concrete
+  if score {variablesFor} bit.string.color matches 4 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=pen,limit=1] run setblock ~ ~ ~ minecraft:red_concrete
+  if score {variablesFor} bit.string.color matches 5 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=pen,limit=1] run setblock ~ ~ ~ minecraft:magenta_concrete
+  if score {variablesFor} bit.string.color matches 6 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=pen,limit=1] run setblock ~ ~ ~ minecraft:yellow_concrete
+  if score {variablesFor} bit.string.color matches 7 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=pen,limit=1] run setblock ~ ~ ~ minecraft:white_concrete
+
+function fillScreen
+  if score {variablesFor} bit.string.color matches 0 then
+    cmd chain, conditional, always, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:black_concrete
+  if score {variablesFor} bit.string.color matches 1 then
+    cmd chain, conditional, always, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:blue_concrete
+  if score {variablesFor} bit.string.color matches 2 then
+    cmd chain, conditional, always, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:lime_concrete
+  if score {variablesFor} bit.string.color matches 3 then
+    cmd chain, conditional, always, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:cyan_concrete
+  if score {variablesFor} bit.string.color matches 4 then
+    cmd chain, conditional, always, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:red_concrete
+  if score {variablesFor} bit.string.color matches 5 then
+    cmd chain, conditional, always, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:magenta_concrete
+  if score {variablesFor} bit.string.color matches 6 then
+    cmd chain, conditional, always, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:yellow_concrete
+  if score {variablesFor} bit.string.color matches 7 then
+    cmd chain, conditional, always, fill {@SCREEN_ORIGIN_X} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z} {@SCREEN_ORIGIN_X+127} {@SCREEN_ORIGIN_Y} {@SCREEN_ORIGIN_Z+127} minecraft:white_concrete
+  set bit.string.running to 0
+
+function drawPixel
+  #setPositionOne
+  #setPositionTwo
+  
+  if score {variablesFor} bit.string.color matches 0 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run setblock ~ ~ ~ minecraft:black_concrete
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point2] run setblock ~ ~ ~ minecraft:black_concrete
+  if score {variablesFor} bit.string.color matches 1 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run setblock ~ ~ ~ minecraft:blue_concrete
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point2] run setblock ~ ~ ~ minecraft:blue_concrete
+  if score {variablesFor} bit.string.color matches 2 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run setblock ~ ~ ~ minecraft:lime_concrete
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point2] run setblock ~ ~ ~ minecraft:lime_concrete
+  if score {variablesFor} bit.string.color matches 3 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run setblock ~ ~ ~ minecraft:cyan_concrete
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point2] run setblock ~ ~ ~ minecraft:cyan_concrete
+  if score {variablesFor} bit.string.color matches 4 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run setblock ~ ~ ~ minecraft:red_concrete
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point2] run setblock ~ ~ ~ minecraft:red_concrete
+  if score {variablesFor} bit.string.color matches 5 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run setblock ~ ~ ~ minecraft:magenta_concrete
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point2] run setblock ~ ~ ~ minecraft:magenta_concrete
+  if score {variablesFor} bit.string.color matches 6 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run setblock ~ ~ ~ minecraft:yellow_concrete
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point2] run setblock ~ ~ ~ minecraft:yellow_concrete
+  if score {variablesFor} bit.string.color matches 7 then
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run setblock ~ ~ ~ minecraft:white_concrete
+    cmd chain, conditional, always, execute at @e[type=minecraft:armor_stand,tag=point2] run setblock ~ ~ ~ minecraft:white_concrete
+  set bit.string.running to 0
+
+function drawLine
+  #setPositionOne
+  #setPositionTwo
+
+  waitUntil score {variablesFor} bit.point1.x = {variablesFor} bit.string.position1.x
+  waitUntil score {variablesFor} bit.point1.z = {variablesFor} bit.string.position1.z
+  waitUntil score {variablesFor} bit.point2.x = {variablesFor} bit.string.position2.x
+  waitUntil score {variablesFor} bit.point2.z = {variablesFor} bit.string.position2.z
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run tp @e[type=minecraft:armor_stand,tag=pen,limit=1] ~ ~ ~ -90 0
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=point2,limit=1] run rotate @e[type=minecraft:armor_stand,tag=pen,limit=1] facing ~ ~ ~
+  approachPoint2()
+
+function drawRect
+  #setPositionOne
+  #setPositionTwo
+
+  ' doesnt work yet, just fill 3x3 square for now
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=point1] run fill ~ ~ ~ ~2 ~ ~2 minecraft:white_concrete
+
+function executeBitString
+  ' First 2 bits
+  set bit.string.running to 1
+  
+  [UNCONDITIONAL]
+  if score {variablesFor} bit.string.type matches 0 then
+    [CONDITIONAL]
+    score {variablesFor} bit.running to 0
+  [UNCONDITIONAL]
+  if score {variablesFor} bit.string.type matches 1 then
+    [CONDITIONAL]
+    drawPixel()
+  [UNCONDITIONAL]
+  if score {variablesFor} bit.string.type matches 2 then
+    [CONDITIONAL]
+    drawLine()
+  [UNCONDITIONAL]
+  if score {variablesFor} bit.string.type matches 3 then
+    [CONDITIONAL]
+    fillScreen()
+  waitUntil score {variablesFor} bit.string.running matches 0
+  if score {variablesFor} bit.running matches 1 then
+    shiftBitPointer()
+
+chunk readBitPositionOne
+  set bit.string.position1.x to 0
+  set bit.string.position1.z to 0
+
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~5 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.x 32
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~6 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.x 16
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~7 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.x 8
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~8 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.x 4
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~9 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.x 2
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~10 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.x 1
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~11 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.z 32
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~12 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.z 16
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~13 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.z 8
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~14 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.z 4
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~15 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.z 2
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~16 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position1.z 1
+endchunk
+
+chunk readBitPositionTwo
+  set bit.string.position2.x to 0
+  set bit.string.position2.z to 0
+
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~17 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.x 32
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~18 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.x 16
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~19 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.x 8
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~20 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.x 4
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~21 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.x 2
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~22 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.x 1
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~23 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.z 32
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~24 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.z 16
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~25 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.z 8
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~26 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.z 4
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~27 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.z 2
+  cmd chain, unconditional, always, execute at @e[type=minecraft:armor_stand,tag=bitReader] run execute if block ~28 ~ ~ minecraft:white_concrete run scoreboard players add {variablesFor} bit.string.position2.z 1
+  executeBitString()
+endchunk
+
+function readBitString
+  #readBitType
+  #readBitColor
+  #readBitPositionOne
+  #readBitPositionTwo
+
+function start
+  initialize()
+  [chain]
+  [alwaysactive]
+  #createScreen
+  resetBitPointer()
+  #resetPoint1Position
+  #resetPoint2Position
+  set bit.running to 1
+  readBitString()
+
+' -64 -64, 63 61
+' Bit string:
+-- 2 bits for the type of thing, 3 bits for color, 6 bits for position 1 X, 6 bits for position 1 Z, 6 bits for position 2 X, 6 bits for position 2 Z
+-- type of thing: 00 for END INSTRUCTION, 01 for pixel, 10 for line, 11 for fill screen
+-- color: 000 for black, 001 for blue, 010 for green, 011 for cyan, 100 for red, 101 for magenta, 110 for yellow, 111 for white
+-- position 1 and 2: add all the way up to 63 but we only use
+-- Total bits: 2+3+6+6+6+6 = 29 bits, so we can fit 4 of these in a 128 bit string, and we can ignore the last 12 bits when the first 2 bits are 11 since that means fill screen which doesn't need positions
+-- when first 2 bits are 11 just ignore last 10 bits
+exit
+
+origin 5,56,0
+.BUILDBUTTON=G
+currentPlayer TwetyDev
+
+import sqrt.mcmd
+
+set player_x to 0
+set player_z to 0
+set printed to 0
+set unsqrtDistance to 0
+set differenceX to 0
+set differenceZ to 0
+
+function getDistance
+  cmd impulse, unconditional, need, execute store result score {variablesFor} player_x run data get entity {selectedPlayer} Pos[0] 1
+  cmd chain, conditional, always, execute store result score {variablesFor} player_z run data get entity {selectedPlayer} Pos[2] 1
+
+  set differenceX to {origin_x}
+  set differenceZ to {origin_z}
+
+  set differenceX -= player_x
+  set differenceZ -= player_z
+
+  set differenceX *= differenceX
+  set differenceZ *= differenceZ
+
+  set unsqrtDistance = differenceX
+  set unsqrtDistance += differenceZ
+
+  sqrt(sqrt.value=unsqrtDistance)
+  runNextRow
+
+waitFor score sqrt.finished 1 wait_for_sqrt_answer
+  say Distance: {sqrt.answer}
+  getDistance()
+
+exit
+
+origin 90,56,90
+
+@GRID_SIDE_LENGTH = 10
+@WALL_BLOCK = "white_concrete"
+@OPEN_BLOCK = "black_concrete"
+@SNAKE_COLOR = "green_concrete"
+@ORIGIN_X_PLUS_HALF_WALL_LENGTH = {@GRID_SIDE_LENGTH}/2+{origin_x}
+@ORIGIN_Z_PLUS_HALF_WALL_LENGTH = {@GRID_SIDE_LENGTH}/2+{origin_z}
+
+@ORIGIN_X_PLUS_WALL_LENGTH = {origin_x}+{@GRID_SIDE_LENGTH}
+@ORIGIN_Z_PLUS_WALL_LENGTH = {origin_z}+{@GRID_SIDE_LENGTH}
+
+function initialize
+  set snake_length to 2
+  set snake_direction to 1
+
+  cmd chain, unconditional, always, fill {origin_x} {origin_y+5} {origin_z} {ORIGIN_X_PLUS_WALL_LENGTH} {origin_y+5} {ORIGIN_Z_PLUS_WALL_LENGTH} {@WALL_BLOCK}
+  cmd chain, unconditional, always, fill {origin_x+1} {origin_y+5} {origin_z+1} {ORIGIN_X_PLUS_WALL_LENGTH-1} {origin_y+5} {ORIGIN_Z_PLUS_WALL_LENGTH-1} {@OPEN_BLOCK}
+
+  armorstand create snake ArmorItems:[{},{},{},{id:"minecraft:{@}",Count:1b}]
+
+
+
+exit
+
+origin 7, 56, -8
+
+import sqrt.mcmd
+
+currentPlayer TwetyDev
+
+function initialize
+  armorstand create player2 {origin_x} {origin_y} {origin_z}
+  set player.pos.x to 0
+  set player.pos.y to 0
+  set player.pos.z to 0
+
+  set armorstand.pos.x to 0
+  set armorstand.pos.y to 0
+  set armorstand.pos.z to 0
+
+  set sumOfAll to 0
+
+function getDistance
+  cmd impulse, unconditional, need, execute store result score {variablesFor} player.pos.x run data get entity {selectedPlayer} Pos[0]
+  cmd chain, unconditional, always, execute store result score {variablesFor} player.pos.y run data get entity {selectedPlayer} Pos[1]
+  cmd chain, unconditional, always, execute store result score {variablesFor} player.pos.z run data get entity {selectedPlayer} Pos[2]
+
+  cmd chain, unconditional, need, execute store result score {variablesFor} armorstand.pos.x run data get entity @e[type=minecraft:armor_stand,tag=player2,limit=1] Pos[0]
+  cmd chain, unconditional, always, execute store result score {variablesFor} armorstand.pos.y run data get entity @e[type=minecraft:armor_stand,tag=player2,limit=1] Pos[1]
+  cmd chain, unconditional, always, execute store result score {variablesFor} armorstand.pos.z run data get entity @e[type=minecraft:armor_stand,tag=player2,limit=1] Pos[2]
+
+  set armorstand.pos.x -= player.pos.x
+  set armorstand.pos.y -= player.pos.y
+  set armorstand.pos.z -= player.pos.z
+
+  set armorstand.pos.x *= armorstand.pos.x
+  set armorstand.pos.y *= armorstand.pos.y
+  set armorstand.pos.z *= armorstand.pos.z
+
+  set sumOfAll = armorstand.pos.x
+  set sumOfAll += armorstand.pos.y
+  set sumOfAll += armorstand.pos.z
+
+  sqrt(sqrt.value = sumOfAll)
+  runNextRow
+
+waitFor score sqrt.answer -1.. wait_for_sqrt_answer
+  say Distance: {sqrt.answer}
+
+
+
+
+  
+
+
+exit
+
+
+origin 1, -60, -14
+.BUILDBUTTON=G
+.OUTPUT=file
+@ROOM_SIZE = 6
+-- ROOM_HEIGHT = 5
+
+@GRID_SIZE_V = 25
+
+@TEMPLATE_ROOM_AMOUNT = 24
+@TEMPLATE_CURRENT_X = 0
+@TEMPLATE_CURRENT_Y = -61
+@TEMPLATE_CURRENT_Z = -22
+
+function start
+  armorstand remove backroomsBuilder
+  armorstand create backroomsBuilder {origin_x} {origin_y+10} {origin_z} NoGravity:1b
+  set GRID_SIZE to {@GRID_SIZE_V}
+  set x to 0
+  set y to 0
+  set one to 1
+  set randNum to 0
+  runNextRow
+
+function addRoom
+  set x += one
+  if score {variablesFor} x >= {variablesFor} GRID_SIZE then
+    [CONDITIONAL]
+    armorstand move backroomsBuilder {origin_x} ~ ~{@ROOM_SIZE}
+    [CONDITIONAL]
+    set y += one
+    [CONDITIONAL]
+    set x to 0
+  else
+    [CONDITIONAL]
+    armorstand move backroomsBuilder ~{@ROOM_SIZE} ~ ~
+  say ArmorStand at {x}, {y}
+  if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+    [CONDITIONAL]
+    random randNum, 1, {@TEMPLATE_ROOM_AMOUNT}
+
+    ' All rooms
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 1 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+      
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 2 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+      
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 3 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+      
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 4 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+      
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 5 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+      
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 6 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+      
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 7 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+      
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 8 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+      
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 9 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 10 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 11 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 12 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 13 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 14 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 15 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 16 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 17 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 18 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 19 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 20 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 21 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 22 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 23 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      cmd chain, conditional, always, execute if score {variablesFor} randNum matches 24 run execute at @e[type=armor_stand,tag=backroomsBuilder] run clone {@TEMPLATE_CURRENT_X} {@TEMPLATE_CURRENT_Y} {@TEMPLATE_CURRENT_Z} {@TEMPLATE_CURRENT_X+6} {@TEMPLATE_CURRENT_Y+5} {@TEMPLATE_CURRENT_Z+6} ~ ~ ~
+      @TEMPLATE_CURRENT_X += 7
+
+    if score {variablesFor} x < {variablesFor} GRID_SIZE and score {variablesFor} y < {variablesFor} GRID_SIZE then
+      [CONDITIONAL]
+      addRoom()
+
+    if score {variablesFor} x matches 0 and score {variablesFor} y = {variablesFor} GRID_SIZE then
+      [CONDITIONAL]
+      runNextRow
+
+function createOutlineWalls
+  @WALL_LENGTH = {@ROOM_SIZE}
+  @WALL_LENGTH *= {@GRID_SIZE_V}
+  @ORIGIN_X_PLUS_WALL_LENGTH = {origin_x}
+  @ORIGIN_X_PLUS_WALL_LENGTH += {@WALL_LENGTH}
+
+  @ORIGIN_Z_PLUS_WALL_LENGTH = {origin_z}
+  @ORIGIN_Z_PLUS_WALL_LENGTH += {@WALL_LENGTH}
+
+  cmd impulse, unconditional, need, fill {origin_x+6} {origin_y+10} {origin_z} {@ORIGIN_X_PLUS_WALL_LENGTH+6} {origin_y+14} {origin_z} stripped_bamboo_block
+  cmd chain, unconditional, always, fill {origin_x+6} {origin_y+10} {origin_z} {origin_x+6} {origin_y+14} {@ORIGIN_Z_PLUS_WALL_LENGTH} stripped_bamboo_block
+  cmd chain, unconditional, always, fill {@ORIGIN_X_PLUS_WALL_LENGTH+6} {origin_y+10} {origin_z} {@ORIGIN_X_PLUS_WALL_LENGTH+6} {origin_y+14} {@ORIGIN_Z_PLUS_WALL_LENGTH} stripped_bamboo_block
+  cmd chain, unconditional, always, fill {origin_x+6} {origin_y+10} {@ORIGIN_Z_PLUS_WALL_LENGTH} {@ORIGIN_X_PLUS_WALL_LENGTH+6} {origin_y+14} {@ORIGIN_Z_PLUS_WALL_LENGTH} stripped_bamboo_block
+
+function assignMonster
+  cmd impulse, unconditional, need, tag @a remove monster
+  cmd chain, unconditional, always, tag @r add monster
+  cmd chain, unconditional, always, team add monster
+  cmd chain, unconditional, always, team empty monster
+  cmd chain, unconditional, always, team add survivors
+  cmd chain, unconditional, always, team empty survivors
+  cmd chain, unconditional, always, team join monster @a[tag=monster]
+  cmd chain, unconditional, always, team join survivors @a[tag=!monster]
+  cmd chain, unconditional, always, team modify survivors friendlyFire false
+  cmd chain, unconditional, always, team modify monster nametagVisibility hideForOtherTeams
+  cmd chain, unconditional, always, team modify survivors nametagVisibility hideForOtherTeams
+  cmd chain, unconditional, always, team modify survivors color dark_red
+  cmd chain, unconditional, always, team modify monster color black
+  
+  cmd chain, unconditional, always, tellraw @a[tag=monster] {'text':'YOU ARE THE MONSTER!','color':'red','bold':true}
+  cmd chain, unconditional, always, tellraw @a[tag=!monster] {'text':'You are NOT the monster!','color':'green'}
+  cmd chain, unconditional, always, attribute @p minecraft:scale base set 1
+  cmd chain, unconditional, always, attribute @p minecraft:movement_speed base set 0.12
+  cmd chain, unconditional, always, attribute @p minecraft:sneaking_speed base set 0.3
+  cmd chain, unconditional, always, attribute @p minecraft:attack_damage base set 0
+  cmd chain, unconditional, always, attribute @p minecraft:attack_knockback base set 0
+  cmd chain, unconditional, always, attribute @p minecraft:attack_speed base set 4
+  cmd chain, unconditional, always, attribute @p minecraft:entity_interaction_range base set 3
+  cmd chain, unconditional, always, attribute @p[tag=monster] minecraft:scale base set 1.3
+  cmd chain, unconditional, always, attribute @p[tag=monster] minecraft:movement_speed base set 0.124
+  cmd chain, unconditional, always, attribute @p[tag=monster] minecraft:attack_damage base set 5
+  cmd chain, unconditional, always, attribute @p[tag=monster] minecraft:attack_knockback base set 2
+  cmd chain, unconditional, always, attribute @p[tag=monster] minecraft:attack_speed base set 0.8
+  cmd chain, unconditional, always, attribute @p[tag=monster] minecraft:entity_interaction_range base set 1
+  cmd chain, unconditional, always, attribute @p[tag=monster] minecraft:sneaking_speed base set 0.5
+  cmd chain, unconditional, always, scoreboard objectives add monster.echo minecraft.used:minecraft.goat_horn
+  cmd chain, unconditional, always, scoreboard players set @a monster.echo 0
+  cmd chain, unconditional, always, give @a[tag=monster] minecraft:goat_horn[instrument='yearn_goat_horn']
+  runNextRow
+
+function detectMonsterEcho
+  cmd repeating, unconditional, need, execute if score @a[tag=monster,limit=1] monster.echo matches 1.. run scoreboard players set @a[tag=monster] monster.echo 0
+  cmd chain, conditional, always, effect give @a glowing 8 255 true
+  cmd chain, conditional, always, effect give @a minecraft:blindness 4 255 true
+  cmd chain, conditional, always, effect give @a minecraft:darkness 4 255 true
+  cmd chain, conditional, always, execute at @a[tag=monster] run playsound minecraft:item.goat_horn.sound.5 voice @a ~ ~ ~ 100 0.5 0
+  
+function monsterFootSteps
+  cmd impulse, unconditional, need, execute at @a[tag=monster] run playsound minecraft:entity.warden.heartbeat player @a ~ ~ ~ 1 2
+  timer 7 ticks
+  cmd impulse, unconditional, need, setblock {origin_x-1} {origin_y} {current_z} minecraft:redstone_block destroy
+  cmd chain, unconditional, always, kill @e[type=item]
+  
+
+exit
+
+
+origin -3, 104, -7
+.BUILDBUTTON=G
+say test
+armorstand create roadBuilder -8 87 38 NoGravity:1b
+
+isHolding stone buildRoad execute as @e[type=minecraft:armor_stand,tag=roadBuilder] at @e[type=minecraft:armor_stand,tag=roadBuilder] run clone ~ ~ ~ ~8 ~6 ~16 ~9 ~ ~
+[CONDITIONAL]
+armorstand move roadBuilder ~9 ~ ~
+
+exit
+
+origin -47, -60, -10
+set maxVal to 5
+while iteration=1 <= maxVal
+say {iteration}/{maxVal}
+set iteration add 1
+endwhile
+
+exit
+
+
+origin -27, -60, -40
+-- import sqrt.mcmd
+set unknown_value to 64
+say what is the square root of {unknown_value}?
+sqrt(sqrt.value=unknown_value)
+runNextRow
+waitFor score sqrt.answer -1.. wait_for_sqrt_answer
+say The square root of {unknown_value} is {sqrt.answer}
+
+
+
+
+
+exit
+
+
+
+origin 30, -60, 99
+set countdown to 5
+set one to 1
+say hello bro!
+
+function wait1Second
+timer 1 seconds
+say {countdown}
+set countdown -= one
+if score {variablesFor} countdown matches 1.. then
+[CONDITIONAL]
+wait1Second()
+if score {variablesFor} countdown matches 0 run say Boom!
+
+
+
+exit
+-- origin -30, -60, -99
+function initialize
+clear
+set turn to 0
+set builder_i to 0
+set builder_y to -1
+set newRowEvery to 8
+set maxSquares to 64
+set flipColors to 0
+set one to 1
+set zero to 0
+set two to 2
+set moduleOfBuilder_i to 0
+set sumOfXandY to 0
+
+' Build Squares
+cmd chain, unconditional, always, fill {origin_x} {origin_y+5} {origin_z} {origin_x+2} {origin_y+5} {origin_z+2} minecraft:black_concrete
+cmd chain, unconditional, always, fill {origin_x+3} {origin_y+5} {origin_z+3} {origin_x+2+3} {origin_y+5} {origin_z+2+3} minecraft:white_concrete
+
+' Armor Stand builder
+armorstand remove builder
+armorstand create builder {origin_x} {origin_y+20} {origin_z-3} NoGravity:1b
+
+
+function setPieces
+cmd impulse, unconditional, need, kill @e[type=armor_stand]
+' white back rank
+armorstand create wrooka1 {origin_x+1} {origin_y+21} {origin_z+1} NoGravity:1b
+armorstand create whorseb1 {origin_x+1+3} {origin_y+21} {origin_z+1} NoGravity:1b
+armorstand create wbishopc1 {origin_x+1+6} {origin_y+21} {origin_z+1} NoGravity:1b
+armorstand create wkinge1 {origin_x+1+9} {origin_y+21} {origin_z+1} NoGravity:1b
+armorstand create wqueend1 {origin_x+1+12} {origin_y+21} {origin_z+1} NoGravity:1b
+armorstand create wbishopf1 {origin_x+1+15} {origin_y+21} {origin_z+1} NoGravity:1b
+armorstand create whorseg1 {origin_x+1+18} {origin_y+21} {origin_z+1} NoGravity:1b
+armorstand create wrookh1 {origin_x+1+21} {origin_y+21} {origin_z+1} NoGravity:1b
+
+' white pawns
+armorstand create wpawna2 {origin_x+1} {origin_y+21} {origin_z+1+3} NoGravity:1b
+armorstand create wpawnb2 {origin_x+1+3} {origin_y+21} {origin_z+1+3} NoGravity:1b
+armorstand create wpawnc2 {origin_x+1+6} {origin_y+21} {origin_z+1+3} NoGravity:1b
+armorstand create wpawnd2 {origin_x+1+9} {origin_y+21} {origin_z+1+3} NoGravity:1b
+armorstand create wpawne2 {origin_x+1+12} {origin_y+21} {origin_z+1+3} NoGravity:1b
+armorstand create wpawnf2 {origin_x+1+15} {origin_y+21} {origin_z+1+3} NoGravity:1b
+armorstand create wpawng2 {origin_x+1+18} {origin_y+21} {origin_z+1+3} NoGravity:1b
+armorstand create wpawnh2 {origin_x+1+21} {origin_y+21} {origin_z+1+3} NoGravity:1b
+
+' black pawns
+armorstand create bpawna7 {origin_x+1} {origin_y+21} {origin_z+1+18} NoGravity:1b
+armorstand create bpawnb7 {origin_x+1+3} {origin_y+21} {origin_z+1+18} NoGravity:1b
+armorstand create bpawnc7 {origin_x+1+6} {origin_y+21} {origin_z+1+18} NoGravity:1b
+armorstand create bpawnd7 {origin_x+1+9} {origin_y+21} {origin_z+1+18} NoGravity:1b
+armorstand create bpawne7 {origin_x+1+12} {origin_y+21} {origin_z+1+18} NoGravity:1b
+armorstand create bpawnf7 {origin_x+1+15} {origin_y+21} {origin_z+1+18} NoGravity:1b
+armorstand create bpawng7 {origin_x+1+18} {origin_y+21} {origin_z+1+18} NoGravity:1b
+armorstand create bpawnh7 {origin_x+1+21} {origin_y+21} {origin_z+1+18} NoGravity:1b
+
+' black back rank
+armorstand create brooka8 {origin_x+1} {origin_y+21} {origin_z+1+21} NoGravity:1b
+armorstand create bhorseb8 {origin_x+1+3} {origin_y+21} {origin_z+1+21} NoGravity:1b
+armorstand create bbishopc8 {origin_x+1+6} {origin_y+21} {origin_z+1+21} NoGravity:1b
+armorstand create bkinge8 {origin_x+1+9} {origin_y+21} {origin_z+1+21} NoGravity:1b
+armorstand create bqueend8 {origin_x+1+12} {origin_y+21} {origin_z+1+21} NoGravity:1b
+armorstand create bbishopf8 {origin_x+1+15} {origin_y+21} {origin_z+1+21} NoGravity:1b
+armorstand create bhorseg8 {origin_x+1+18} {origin_y+21} {origin_z+1+21} NoGravity:1b
+armorstand create brookh8 {origin_x+1+21} {origin_y+21} {origin_z+1+21} NoGravity:1b
+
+function buildBoard
+set builder_i += one
+if score {variablesFor} builder_i > {variablesFor} maxSquares then
+[CONDITIONAL]
+setPieces()
+set moduleOfBuilder_i = builder_i
+set moduleOfBuilder_i %= newRowEvery
+cmd chain, unconditional, always, execute if score {variablesFor} moduleOfBuilder_i matches 1 run scoreboard players operation {variablesFor} builder_y += {variablesFor} one
+set sumOfXandY = moduleOfBuilder_i
+set sumOfXandY += builder_y
+set turn = sumOfXandY
+set turn %= two
+say test: {builder_i}, {builder_y}
+
+cmd chain, unconditional, always, execute if score {variablesFor} builder_i <= {variablesFor} maxSquares run execute as @e[tag=builder] at @s run tp ~3 ~ ~
+cmd chain, unconditional, always, execute if score {variablesFor} moduleOfBuilder_i matches 1 run execute as @e[tag=builder] at @s run tp {origin_x} ~ ~3
+cmd chain, unconditional, always, execute if score {variablesFor} builder_i <= {variablesFor} maxSquares run execute if score {variablesFor} turn matches 0 run execute as @e[tag=builder] at @s run clone {origin_x} {origin_y+5} {origin_z} {origin_x+2} {origin_y+5} {origin_z+2} ~ ~ ~
+cmd chain, unconditional, always, execute if score {variablesFor} builder_i <= {variablesFor} maxSquares run execute if score {variablesFor} turn matches 1 run execute as @e[tag=builder] at @s run clone {origin_x+3} {origin_y+5} {origin_z+3} {origin_x+2+3} {origin_y+5} {origin_z+2+3} ~ ~ ~
+if score {variablesFor} builder_i <= {variablesFor} maxSquares then
+[CONDITIONAL]
+buildBoard()
+
+
+
+exit
+cleararea
+
+function initialize
+set randNum to 0
+set grid to 30
+set currentX to 0
+set currentY to 0
+set one to 1
+set zero to 0
+armorstand remove builder
+armorstand create builder {origin_x} {origin_y+20} {origin_z} NoGravity:1b
+
+function moveArmorStandOver
+if score {variablesFor} currentX < {variablesFor} grid and score {variablesFor} currentY < {variablesFor} grid then
+[CONDITIONAL]
+cmd chain, unconditional, always, setblock {origin_x-1} {origin_y} {current_z+2} minecraft:redstone_block destroy
+[CONDITIONAL]
+set currentX += one
+[CONDITIONAL]
+armorstand move builder ~1 ~ ~
+[CONDITIONAL]
+if score {variablesFor} currentX = {variablesFor} grid and score {variablesFor} currentY < {variablesFor} grid then
+[CONDITIONAL]
+set currentY += one
+[CONDITIONAL]
+set currentX to 0
+[CONDITIONAL]
+if score {variablesFor} currentY < {variablesFor} grid then
+[CONDITIONAL]
+armorstand move builder {origin_x} ~ ~1
+
+function generateRandomNumber
+if score {variablesFor} currentX < {variablesFor} grid and score {variablesFor} currentY < {variablesFor} grid then
+random randNum, 1, 20
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 1 run setblock {origin_x-1} {origin_y} {current_z+2} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 2 run setblock {origin_x-1} {origin_y} {current_z+4} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 3 run setblock {origin_x-1} {origin_y} {current_z+6} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 4 run setblock {origin_x-1} {origin_y} {current_z+8} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 5 run setblock {origin_x-1} {origin_y} {current_z+10} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 6 run setblock {origin_x-1} {origin_y} {current_z+12} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 7 run setblock {origin_x-1} {origin_y} {current_z+14} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 8 run setblock {origin_x-1} {origin_y} {current_z+16} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 9 run setblock {origin_x-1} {origin_y} {current_z+18} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 10 run setblock {origin_x-1} {origin_y} {current_z+20} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 11 run setblock {origin_x-1} {origin_y} {current_z+22} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 12 run setblock {origin_x-1} {origin_y} {current_z+24} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 13 run setblock {origin_x-1} {origin_y} {current_z+26} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 14 run setblock {origin_x-1} {origin_y} {current_z+28} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 15 run setblock {origin_x-1} {origin_y} {current_z+30} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 16 run setblock {origin_x-1} {origin_y} {current_z+32} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 17 run setblock {origin_x-1} {origin_y} {current_z+34} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 18 run setblock {origin_x-1} {origin_y} {current_z+36} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 19 run setblock {origin_x-1} {origin_y} {current_z+38} minecraft:redstone_block destroy
+cmd chain, unconditional, always, execute if score {variablesFor} randNum matches 20 run setblock {origin_x-1} {origin_y} {current_z+40} minecraft:redstone_block destroy
+moveArmorStandOver()
+cmd chain, unconditional, always, kill @e[type=item]
+
+function ifrandNum1
+armorstand run builder setblock ~ ~ ~ minecraft:stone
+
+function ifrandNum2
+armorstand run builder setblock ~ ~ ~ minecraft:dirt
+
+
+function ifrandNum3
+armorstand run builder setblock ~ ~ ~ minecraft:cobblestone
+
+
+function ifrandNum4
+armorstand run builder setblock ~ ~ ~ minecraft:sandstone
+
+
+function ifrandNum5
+armorstand run builder setblock ~ ~ ~ minecraft:mossy_cobblestone
+
+
+function ifrandNum6
+armorstand run builder setblock ~ ~ ~ minecraft:granite
+
+
+function ifrandNum7
+armorstand run builder setblock ~ ~ ~ minecraft:andesite
+
+
+function ifrandNum8
+armorstand run builder setblock ~ ~ ~ minecraft:diorite
+
+
+function ifrandNum9
+armorstand run builder setblock ~ ~ ~ minecraft:stone_bricks
+
+
+function ifrandNum10
+armorstand run builder setblock ~ ~ ~ minecraft:cracked_stone_bricks
+
+
+function ifrandNum11
+armorstand run builder setblock ~ ~ ~ minecraft:oak_planks
+
+
+function ifrandNum12
+armorstand run builder setblock ~ ~ ~ minecraft:spruce_planks
+
+
+function ifrandNum13
+armorstand run builder setblock ~ ~ ~ minecraft:glass
+
+
+function ifrandNum14
+armorstand run builder setblock ~ ~ ~ minecraft:glowstone
+
+
+function ifrandNum15
+armorstand run builder setblock ~ ~ ~ minecraft:obsidian
+
+
+function ifrandNum16
+armorstand run builder setblock ~ ~ ~ minecraft:smooth_basalt
+
+
+function ifrandNum17
+armorstand run builder setblock ~ ~ ~ minecraft:blackstone
+
+
+function ifrandNum18
+armorstand run builder setblock ~ ~ ~ minecraft:polished_diorite
+
+
+function ifrandNum19
+armorstand run builder setblock ~ ~ ~ minecraft:deepslate
+
+
+function ifrandNum20
+armorstand run builder setblock ~ ~ ~ minecraft:prismarine
+
+
+function main
+initialize()
+generateRandomNumber()
+run
+
+
+
+
+
+exit
+
+
+
+
+
+function sayrun
+cmd impulse, unconditional, need, say run
+set iteration -= one
+if score {variablesFor} iteration > {variablesFor} zero then
+[CONDITIONAL]
+sayrun()
+goback
+
+set zero to 0
+set one to 1
+random iteration, 20, 40
+
+sayrun()
+run
+

@@ -1,0 +1,27 @@
+.MODULE=true
+
+' initialize
+  set sqrt.value to 0
+  set sqrt.check to 0
+  set sqrt.checkSquared to 0
+  set sqrt.finished to 0
+run
+
+function sqrt
+  [REPEATING]
+  set sqrt.checkSquared = sqrt.check
+  set sqrt.checkSquared *= sqrt.check
+  if score {variablesFor} sqrt.checkSquared >= {variablesFor} sqrt.value then
+    [CONDITIONAL]
+    set sqrt.finished to 1
+    [CONDITIONAL]
+    set sqrt.answer = sqrt.check
+    [CONDITIONAL]
+    stop sqrt()
+  else
+    [CONDITIONAL]
+    set sqrt.check add 1
+    [CONDITIONAL]
+    set sqrt.finished to 0
+
+
