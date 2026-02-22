@@ -1,3 +1,16 @@
+origin -81, -63, 1
+.BUILDBUTTON=G
+.OUTPUT=both
+
+currentPlayer @a
+
+import astar.mcmd
+
+' first file init
+  say This is the first file
+
+exit
+
 origin -258, -63, 81
 .BUILDBUTTON=G
 .OUTPUT=both
@@ -445,7 +458,7 @@ origin 5,56,0
 .BUILDBUTTON=G
 currentPlayer TwetyDev
 
-import sqrt.mcmd
+import math.mcmd
 
 set player_x to 0
 set player_z to 0
@@ -506,7 +519,7 @@ exit
 
 origin 7, 56, -8
 
-import sqrt.mcmd
+import math.mcmd
 
 currentPlayer TwetyDev
 
@@ -792,7 +805,7 @@ exit
 
 
 origin -27, -60, -40
--- import sqrt.mcmd
+-- import math.mcmd
 set unknown_value to 64
 say what is the square root of {unknown_value}?
 sqrt(sqrt.value=unknown_value)

@@ -1,0 +1,57 @@
+.MODULE=true
+
+' initialize
+  set math.value to 0
+  set math.check to 0
+  set math.checkSquared to 0
+
+  -- pow function
+  set math.pow to 0
+
+  -- accuracy config
+  set math.accuracy to 1000
+
+  -- these are used for the sin function
+  set math.checkCubed to 0
+  set math.checkPowFive to 0
+  set math.6 to 6
+  set math.120 to 120
+
+  set math.finished to 0
+  set math.negative_1 to -1
+run
+
+function sqrt
+  [REPEATING]
+  set math.checkSquared = math.check
+  set math.checkSquared *= math.check
+  if score {variablesFor} math.checkSquared >= {variablesFor} math.value then
+    [CONDITIONAL]
+    set math.finished to 1
+    [CONDITIONAL]
+    set math.value = math.check
+    [CONDITIONAL]
+    stop sqrt()
+  else
+    [CONDITIONAL]
+    set math.check add 1
+    [CONDITIONAL]
+    set math.finished to 0
+
+function abs
+  cmd impulse, unconditional, need, execute if score {variablesFor} math.value matches ..0 run scoreboard players operation {variablesFor} math.value *= {variablesFor} math.negative_1
+
+function sin
+  set math.check = math.value
+  set math.checkCubed to math.value
+  set math.checkCubed *= math.value
+  set math.checkCubed *= math.value
+  set math.checkCubed /= math.6
+  set math.checkPowFive to math.value
+  set math.checkPowFive *= math.value
+  set math.checkPowFive *= math.value
+  set math.checkPowFive *= math.value
+  set math.checkPowFive *= math.value
+  set math.checkPowFive /= math.120
+  set math.value -= math.checkCubed
+  set math.value += math.checkPowFive
