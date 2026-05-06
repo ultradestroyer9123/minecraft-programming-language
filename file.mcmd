@@ -1,3 +1,183 @@
+origin -15, -63, -111
+.BUILDBUTTON=G
+.OUTPUT=both
+cmd_manual kill @e[tag=Untitled]
+
+import MeshBuilder/output.mcmd
+exit
+
+origin -14, -63, -85
+.BUILDBUTTON=G
+.OUTPUT=both
+currentPlayer @a
+
+-- generatePeanut
+cmd_manual scoreboard objectives add scp173.beingViewed dummy
+cmd_manual scoreboard players set {variablesFor} scp173.beingViewed 0
+cmd_manual kill @e[type=minecraft:armor_stand,tag=peanut]
+cmd_manual kill @e[type=minecraft:creaking,tag=peanut_viewing]
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Silent:1b,Invulnerable:1b,Marker:1b,Invisible:1b,NoBasePlate:1b,Tags:["peanut_origin","peanut"],attributes:[{id:"minecraft:scale",base:0.3}],equipment:{head:{id:"minecraft:air",count:1}}}
+cmd_manual summon creaking ~ ~ ~ {Tags:["peanut_viewing"],OnGround:1b,NoGravity:1b,Silent:1b,Invulnerable:1b,active_effects:[{id:"minecraft:invisibility",amplifier:255,duration:999999,show_particles:0b,show_icon:0b,ambient:0b}],attributes:[{id:"minecraft:follow_range",base:2048},{id:"minecraft:scale",base:0.2}]}
+@COUNTER = 1
+
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.5}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+cmd_manual ride @e[tag=peanut_viewing,limit=1] mount @e[type=minecraft:armor_stand,tag=peanut_beige_1,limit=1]
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.75}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:1}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.75}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.9}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:1}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.75}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+-- left leg
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+-- right leg
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+-- left arm
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+-- right arm
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_beige_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.35}],equipment:{head:{id:"minecraft:stripped_birch_wood",count:1}}}
+@COUNTER += 1
+
+@COUNTER = 1
+repeat 2
+  cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_eyes_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:0.15}],equipment:{head:{id:"minecraft:green_concrete",count:1}}}
+  @COUNTER += 1
+endrepeat
+
+@COUNTER = 1
+repeat 2
+  cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_black_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:0.15}],equipment:{head:{id:"minecraft:black_concrete",count:1}}}
+  @COUNTER += 1
+endrepeat
+
+repeat 5
+  cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_black_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:0.1}],equipment:{head:{id:"minecraft:black_concrete",count:1}}}
+  @COUNTER += 1
+endrepeat
+
+@COUNTER = 1
+
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_blood_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:.5}],equipment:{head:{id:"minecraft:red_concrete",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_blood_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:0.35}],equipment:{head:{id:"minecraft:red_concrete",count:1}}}
+@COUNTER += 1
+cmd_manual summon armor_stand ~ ~ ~ {NoGravity:1b,Invisible:1b,Tags:["peanut_blood_{@COUNTER}","peanut"],attributes:[{id:"minecraft:scale",base:0.2}],equipment:{head:{id:"minecraft:red_concrete",count:1}}}
+@COUNTER += 1
+
+
+function assign_scp173
+  cmd impulse, unconditional, need, tag @a remove scp173
+  cmd chain, unconditional, always, execute as @a run attribute @s minecraft:scale base reset
+  cmd chain, unconditional, always, execute as @a run attribute @s minecraft:camera_distance base reset
+  cmd chain, unconditional, always, execute as @a run attribute @s minecraft:movement_speed base reset
+  cmd chain, unconditional, always, effect clear @a
+  cmd chain, unconditional, always, gamemode survival @a
+  ' stand for 173
+  cmd chain, unconditional, always, tag @p add scp173
+  cmd chain, unconditional, always, execute as @a run attribute @s minecraft:scale base set 2
+  cmd chain, unconditional, always, execute as @a run attribute @s minecraft:camera_distance base set 7
+  cmd chain, unconditional, always, execute as @a run attribute @s minecraft:movement_speed base set 1
+  cmd chain, unconditional, always, effect give @a minecraft:invisibility infinite 1 true
+  cmd chain, unconditional, always, gamemode creative @p[tag=scp173,limit=1]
+
+function scp173_watch_event
+  cmd repeating, unconditional, need, execute at @a[tag=scp173] run damage @a[tag=!scp173,distance=..1.25,limit=1] 1000
+  cmd chain, unconditional, always, execute if entity @e[type=minecraft:creaking,tag=peanut_viewing,nbt={Angry:1b}] run attribute @a[tag=scp173,limit=1] minecraft:movement_speed base set 0
+  cmd chain, unconditional, always, execute if entity @e[type=minecraft:creaking,tag=peanut_viewing,nbt={Angry:0b}] run attribute @a[tag=scp173,limit=1] minecraft:movement_speed base set 1
+
+
+function kill_armor_stands
+  cmd impulse, unconditional, need, kill @e[type=minecraft:armor_stand,tag=peanut]
+  cmd chain, unconditional, always, kill @e[type=minecraft:creaking,tag=peanut_viewing]
+
+function form_peanut
+  cmd repeating, unconditional, need, execute as @p[tag=scp173] at @p[tag=scp173] rotated as @s run tp @e[type=armor_stand,tag=peanut_origin] ~ ~-.27 ~ ~ 0
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_1,limit=1] ^ ^2.275 ^ facing ^ ^ ^1
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_2,limit=1] ^ ^1.75 ^ facing ^ ^ ^1
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_3,limit=1] ^ ^1.1 ^ facing ^ ^ ^1
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_4,limit=1] ^ ^1.15 ^ facing ^ ^ ^1
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_5,limit=1] ^ ^0.45 ^ facing ^ ^ ^1
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_6,limit=1] ^ ^-0.25 ^ facing ^ ^ ^1
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_7,limit=1] ^ ^-0.15 ^ facing ^ ^ ^1
+  -- left leg
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_8,limit=1] ^.15 ^0.4 ^ facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_9,limit=1] ^.15 ^0.2 ^ facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_10,limit=1] ^.15 ^0 ^ facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_11,limit=1] ^.15 ^-0.2 ^ facing ^ ^ ^1000
+  -- right leg
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_12,limit=1] ^-.15 ^0.4 ^ facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_13,limit=1] ^-.15 ^0.2 ^ facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_14,limit=1] ^-.15 ^0 ^ facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_15,limit=1] ^-.15 ^-0.2 ^ facing ^ ^ ^1000
+  -- left arm
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_16,limit=1] ^.25 ^1.5 ^ facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_17,limit=1] ^.3 ^1.475 ^.2 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_18,limit=1] ^.3 ^1.475 ^.4 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_19,limit=1] ^.3 ^1.5 ^.6 facing ^ ^ ^1000
+  -- right arm
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_20,limit=1] ^-.25 ^1.5 ^ facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_21,limit=1] ^-.3 ^1.475 ^.2 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_22,limit=1] ^-.3 ^1.475 ^.4 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_beige_23,limit=1] ^-.3 ^1.5 ^.6 facing ^ ^ ^1000
+  -- green eyes
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_eyes_1,limit=1] ^.16 ^2.55 ^.3 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_eyes_2,limit=1] ^-.16 ^2.55 ^.3 facing ^ ^ ^1000
+  -- black eyes
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_black_1,limit=1] ^.16 ^2.425 ^.3 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_black_2,limit=1] ^-.16 ^2.425 ^.3 facing ^ ^ ^1000
+  -- other black parts
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_black_3,limit=1] ^ ^2.425 ^.3 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_black_4,limit=1] ^ ^2.525 ^.3 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_black_5,limit=1] ^ ^2.625 ^.3 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_black_6,limit=1] ^ ^2.655 ^.3 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_black_7,limit=1] ^ ^2.675 ^.3 facing ^ ^ ^1000
+  -- blood
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_blood_1,limit=1] ^ ^1.9 ^.17 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_blood_2,limit=1] ^ ^2.3 ^.21 facing ^ ^ ^1000
+  cmd chain, unconditional, always, execute at @e[type=armor_stand,tag=peanut_origin,limit=1] run tp @e[type=minecraft:armor_stand,tag=peanut_blood_3,limit=1] ^ ^2.7 ^.265 facing ^ ^ ^1000
+
+
+
+
+  
+
+
+exit
+
 origin -81, -63, 1
 .BUILDBUTTON=G
 .OUTPUT=both
